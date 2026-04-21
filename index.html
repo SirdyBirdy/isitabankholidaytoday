@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Is It A Bank Holiday Today? | Check Bank Holidays by Location</title>
+  <meta name="description" content="Instantly check if today is a bank holiday in your country. If it is — play a game. If it isn't — go back to work." />
+  <link rel="canonical" href="https://isitabankholidaytoday.com/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="site-wrapper">
+
+    <header class="site-header">
+      <div class="logo">
+        <span class="logo-main">isita</span><span class="logo-accent">bankholiday</span><span class="logo-main">today</span><span class="logo-dot">.com</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="toggle-track">
+          <span class="toggle-thumb"></span>
+          <span class="toggle-icon sun">☀</span>
+          <span class="toggle-icon moon">☽</span>
+        </span>
+      </button>
+    </header>
+
+    <main class="main-content">
+      <section class="hero">
+        <div class="hero-eyebrow">The only question that matters on a Monday morning.</div>
+
+        <!-- LOADING -->
+        <div class="state" id="stateLoading">
+          <div class="answer-word loading-word"><span>Checking...</span></div>
+          <p class="subtext loading-text">Consulting the official government calendar of excuses…</p>
+        </div>
+
+        <!-- PERMISSION DENIED -->
+        <div class="state hidden" id="statePermission">
+          <div class="answer-word answer-unknown"><span>Really?</span></div>
+          <p class="subtext">You blocked location. Bold move. Enter your country below.</p>
+          <div class="manual-input">
+            <input type="text" id="countryInput" placeholder="e.g. India, UK, USA…" autocomplete="off" />
+            <button id="countrySubmit">Go</button>
+          </div>
+        </div>
+
+        <!-- YES — BANK HOLIDAY -->
+        <div class="state hidden" id="stateHoliday">
+          <div class="result-stamp">
+            <div class="stamp-ring">
+              <div class="answer-word answer-yes"><span>YES!</span></div>
+            </div>
+          </div>
+          <p class="location-tag" id="locationTagHoliday"></p>
+          <p class="subtext" id="subtextHoliday"></p>
+          <p class="holiday-note" id="holidayNote"></p>
+
+          <!-- GAME INVITE -->
+          <div class="game-invite" id="gameInvite">
+            <div class="game-invite-header">🎮 You've earned this.</div>
+            <p class="game-invite-text">The bank is closed. Your boss can't reach you. The universe has handed you a free pass. Choose your procrastination vehicle:</p>
+            <div class="game-picker">
+              <button class="game-pick-btn" data-game="whackamole">🐀 Whack-a-Boss</button>
+              <button class="game-pick-btn" data-game="snake">🐍 Snake</button>
+              <button class="game-pick-btn" data-game="typingtest">⌨️ Typing Speed</button>
+            </div>
+          </div>
+
+          <!-- GAME CONTAINER -->
+          <div class="game-container hidden" id="gameContainer">
+            <div class="game-header">
+              <span class="game-title-label" id="gameTitleLabel"></span>
+              <div class="game-stats">
+                <span id="gameScore">Score: 0</span>
+                <span id="gameTimer"></span>
+              </div>
+              <button class="game-close-btn" id="gameCloseBtn">✕ Back</button>
+            </div>
+            <div class="game-canvas-wrap" id="gameCanvasWrap">
+              <!-- Game renders here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- NO — NOT A HOLIDAY -->
+        <div class="state hidden" id="stateNotHoliday">
+          <div class="result-stamp nope-stamp">
+            <div class="stamp-ring stamp-ring-no">
+              <div class="answer-word answer-no"><span>NOPE.</span></div>
+            </div>
+          </div>
+          <p class="location-tag" id="locationTagNotHoliday"></p>
+          <div class="guilt-trip" id="guiltTrip">
+            <div class="guilt-main" id="guiltMain"></div>
+            <div class="guilt-sub" id="guiltSub"></div>
+          </div>
+          <div class="countdown-box" id="countdownBox">
+            <div class="countdown-label">Next bank holiday in</div>
+            <div class="countdown-value" id="nextHolidayCountdown"></div>
+            <div class="countdown-name" id="nextHolidayName"></div>
+          </div>
+        </div>
+
+        <!-- ERROR -->
+        <div class="state hidden" id="stateError">
+          <div class="answer-word answer-unknown"><span>¯\_(ツ)_/¯</span></div>
+          <p class="subtext">Couldn't figure out where you are. Try entering your country.</p>
+          <div class="manual-input">
+            <input type="text" id="countryInputError" placeholder="e.g. Germany, Australia…" autocomplete="off" />
+            <button id="countrySubmitError">Go</button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ACTION ROW -->
+      <div class="action-row">
+        <div class="date-pill" id="datePill"></div>
+        <div class="share-actions hidden" id="shareActions">
+          <button class="share-btn btn-whatsapp" id="btnWhatsapp">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp
+          </button>
+          <button class="share-btn btn-twitter" id="btnTwitter">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            Post
+          </button>
+        </div>
+      </div>
+
+      <!-- SEO SECTION -->
+      <section class="seo-section">
+        <h1 class="seo-title">Is Today a Bank Holiday?</h1>
+        <div class="seo-body">
+          <p>A <strong>bank holiday</strong> is an officially recognised public holiday when banks, government offices, and most businesses close. In <strong>India</strong>, national bank holidays include Republic Day (Jan 26), Independence Day (Aug 15), Gandhi Jayanti (Oct 2), plus a long list of state-level holidays. The <strong>UK</strong> gets 8 bank holidays a year. The <strong>US</strong> gets 11 federal holidays. Germany gets 9–13 depending on the state.</p>
+          <p>We check your location against a database of public holidays, and give you the honest answer: yes (with a game) or no (with a stern warning). Use the time accordingly.</p>
+        </div>
+        <div class="country-grid-section">
+          <h2 class="state-grid-title">Countries Covered</h2>
+          <div class="state-grid" id="countryGrid"></div>
+        </div>
+      </section>
+
+      <section class="info-strip">
+        <div class="info-card">
+          <div class="info-icon">🏦</div>
+          <div class="info-text">
+            <strong>What's a bank holiday?</strong>
+            <span>An official public holiday when banks close. Usually tied to national events, religious observances, or government mandates.</span>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">📍</div>
+          <div class="info-text">
+            <strong>Location-based</strong>
+            <span>Rules vary wildly by country and state. We use your GPS to give you the most accurate answer possible.</span>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">🎮</div>
+          <div class="info-text">
+            <strong>Holiday = game time</strong>
+            <span>If it IS a holiday, we reward you with a game. If it isn't, we tell you to close this tab and get back to work.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p class="footer-disclaimer"><em>isitabankholidaytoday.com</em> is an informational project. Data is based on publicly known legislation. We are not responsible for you missing work, playing Snake instead of doing your TPS reports, or getting fired as a result of consulting this website. Drink responsibly. Work grudgingly.</p>
+      <p class="footer-copy">© <span id="footerYear"></span> isitabankholidaytoday.com — Made during what was, ironically, not a bank holiday.</p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
