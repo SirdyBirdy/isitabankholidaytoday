@@ -1,525 +1,637 @@
-/* ============================================
+/* ============================================================
    IS IT A BANK HOLIDAY TODAY? — APP
-   ============================================ */
+   ============================================================ */
 
-// ---- STATE ----
-let currentCountryCode = '';
-let currentIsHoliday = false;
-let currentResult = null;
-let activeGame = null;
+// ---- GLOBALS ----
+let currentState = null;    // state code e.g. "MH"
+let currentCity  = null;    // city name
+let currentResult = null;   // holiday check result
+let activeGameDestroy = null;
+const today = new Date();
 
-// ---- COUNTRY CODE MAP (from timezone/reverse-geo) ----
-const TIMEZONE_COUNTRY_MAP = {
-  'Asia/Kolkata': 'IN',
-  'Asia/Calcutta': 'IN',
-  'Europe/London': 'GB',
-  'America/New_York': 'US',
-  'America/Chicago': 'US',
-  'America/Denver': 'US',
-  'America/Los_Angeles': 'US',
-  'America/Phoenix': 'US',
-  'Europe/Berlin': 'DE',
-  'Europe/Amsterdam': 'DE',
-  'Australia/Sydney': 'AU',
-  'Australia/Melbourne': 'AU',
-  'Australia/Brisbane': 'AU',
-  'Australia/Perth': 'AU',
-  'America/Toronto': 'CA',
-  'America/Vancouver': 'CA',
-  'America/Montreal': 'CA',
-  'Asia/Tokyo': 'JP',
-  'Asia/Dubai': 'AE',
-  'Asia/Singapore': 'SG',
-};
+// ---- INIT ----
+document.getElementById('footerYear').textContent = today.getFullYear();
+document.getElementById('dateBarText').textContent = formatDateHuman(today);
 
-const COUNTRY_NAME_MAP = {
-  'india': 'IN', 'in': 'IN',
-  'uk': 'GB', 'united kingdom': 'GB', 'britain': 'GB', 'england': 'GB', 'gb': 'GB',
-  'usa': 'US', 'us': 'US', 'united states': 'US', 'america': 'US',
-  'germany': 'DE', 'deutschland': 'DE', 'de': 'DE',
-  'australia': 'AU', 'au': 'AU',
-  'canada': 'CA', 'ca': 'CA',
-  'japan': 'JP', 'jp': 'JP',
-  'uae': 'AE', 'united arab emirates': 'AE', 'dubai': 'AE', 'ae': 'AE',
-  'singapore': 'SG', 'sg': 'SG',
-};
-
-// ---- HELPERS ----
-function showState(id) {
-  document.querySelectorAll('.state').forEach(el => el.classList.add('hidden'));
-  document.getElementById(id)?.classList.remove('hidden');
-}
-function setText(id, text) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = text;
-}
-function showToast(msg, duration = 3000) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('visible');
-  setTimeout(() => toast.classList.remove('visible'), duration);
-}
-function randomItem(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-function formatDate(date) {
-  return date.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-// ---- THEME ----
-const themeToggle = document.getElementById('themeToggle');
+// Theme
 const html = document.documentElement;
-const saved = localStorage.getItem('theme');
+const saved = localStorage.getItem('bhTheme');
 if (saved) html.setAttribute('data-theme', saved);
-themeToggle.addEventListener('click', () => {
-  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next === 'dark' ? 'dark' : 'light');
+  // We actually toggle by removing or setting to light
+  if (next === 'light') html.setAttribute('data-theme', 'light');
+  else html.removeAttribute('data-theme');
+  localStorage.setItem('bhTheme', html.getAttribute('data-theme') || 'dark');
 });
 
-// ---- DATE PILL ----
-const today = new Date();
-document.getElementById('datePill').textContent = formatDate(today);
-document.getElementById('footerYear').textContent = today.getFullYear();
+// Admin toggle
+document.getElementById('adminToggle').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('adminPanel').classList.toggle('hidden');
+});
 
-// ---- DETECT COUNTRY ----
-function detectCountryFromTimezone() {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return TIMEZONE_COUNTRY_MAP[tz] || null;
-  } catch {
-    return null;
+// ---- SHOW STATE ----
+function showState(id) {
+  document.querySelectorAll('.app-state').forEach(el => el.classList.add('hidden'));
+  document.getElementById(id)?.classList.remove('hidden');
+}
+
+// ---- TOAST ----
+function toast(msg, dur = 3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  setTimeout(() => el.classList.remove('on'), dur);
+}
+
+// ================================================================
+// GEOLOCATION
+// ================================================================
+function detectStateFromTimezone() {
+  // Most Indian users → IST → IN, we then refine by lat/lng
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return tz === 'Asia/Calcutta' || tz === 'Asia/Kolkata' ? 'IN' : null;
+}
+
+function nearestCity(lat, lng) {
+  let best = null, bestDist = Infinity;
+  for (const c of INDIA_CITIES) {
+    const dist = (c.lat - lat) ** 2 + (c.lng - lng) ** 2;
+    if (dist < bestDist) { bestDist = dist; best = c; }
   }
-}
-
-function lookupCountryCode(input) {
-  return COUNTRY_NAME_MAP[input.trim().toLowerCase()] || null;
-}
-
-// ---- CHECK HOLIDAY ----
-function checkHoliday(countryCode, date) {
-  const rule = HOLIDAY_RULES.find(r => r.country === countryCode);
-  if (!rule) return null;
-  const result = rule.check(date);
-  return { ...result, countryLabel: rule.countryLabel, flag: rule.flag, countryCode };
-}
-
-// ---- RENDER RESULT ----
-function renderResult(result, locationLabel) {
-  currentCountryCode = result.countryCode;
-  currentResult = result;
-
-  const shareActions = document.getElementById('shareActions');
-  shareActions.classList.remove('hidden');
-
-  if (result.holiday) {
-    currentIsHoliday = true;
-    document.getElementById('locationTagHoliday').textContent = `${result.flag || ''} ${locationLabel}`.trim();
-    document.getElementById('subtextHoliday').textContent = randomItem(HOLIDAY_QUIPS);
-    document.getElementById('holidayNote').textContent = `📅 ${result.name}${result.note ? ' — ' + result.note : ''}`;
-    showState('stateHoliday');
-
-    // Share actions
-    setupSharing(true, result.name, locationLabel);
-
-  } else {
-    currentIsHoliday = false;
-    const guilt = randomItem(WORK_SHAMES);
-    document.getElementById('locationTagNotHoliday').textContent = `${result.flag || ''} ${locationLabel}`.trim();
-    document.getElementById('guiltMain').textContent = guilt.main;
-    document.getElementById('guiltSub').textContent = guilt.sub;
-
-    // Next holiday countdown
-    const next = getNextHoliday(result.countryCode, today);
-    if (next) {
-      const box = document.getElementById('countdownBox');
-      box.classList.remove('hidden');
-      const days = next.daysFrom;
-      document.getElementById('nextHolidayCountdown').textContent = `${days} day${days === 1 ? '' : 's'}`;
-      document.getElementById('nextHolidayName').textContent = `↗ ${next.name}`;
-    }
-
-    showState('stateNotHoliday');
-    setupSharing(false, null, locationLabel);
-  }
-}
-
-// ---- SHARING ----
-function setupSharing(isHoliday, holidayName, location) {
-  const dateStr = today.toISOString().slice(0, 10);
-  const msg = isHoliday
-    ? `🏦 YES — it's a bank holiday in ${location} today (${dateStr}). ${holidayName}. Check yours → isitabankholidaytoday.com`
-    : `🏦 NOPE — not a bank holiday in ${location} today. Go back to work. isitabankholidaytoday.com`;
-
-  document.getElementById('btnWhatsapp').onclick = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-  };
-  document.getElementById('btnTwitter').onclick = () => {
-    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(msg)}`, '_blank');
-  };
-}
-
-// ---- GEO DETECT + INIT ----
-function initWithCountry(countryCode, label) {
-  const result = checkHoliday(countryCode, today);
-  if (!result) {
-    showState('stateError');
-    return;
-  }
-  renderResult(result, label);
+  return best;
 }
 
 function init() {
-  // Try timezone first
-  const tzCode = detectCountryFromTimezone();
-  if (tzCode) {
-    const rule = HOLIDAY_RULES.find(r => r.country === tzCode);
-    const label = rule ? `${rule.flag} ${rule.countryLabel}` : tzCode;
-    initWithCountry(tzCode, label);
-    return;
-  }
+  showState('stateLoading');
+  animateLoadingBar();
 
-  // Try geolocation
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        // We use a reverse-geocoding approach via timezone fallback
-        const tzCode2 = detectCountryFromTimezone();
-        if (tzCode2) {
-          const rule = HOLIDAY_RULES.find(r => r.country === tzCode2);
-          const label = rule ? `${rule.flag} ${rule.countryLabel}` : tzCode2;
-          initWithCountry(tzCode2, label);
+      pos => {
+        const city = nearestCity(pos.coords.latitude, pos.coords.longitude);
+        if (city) {
+          renderForCity(city);
         } else {
-          showState('statePermission');
+          // fallback to timezone
+          const isIN = detectStateFromTimezone();
+          isIN ? showState('statePermission') : showState('stateError');
         }
       },
-      () => showState('statePermission')
+      () => {
+        // Permission denied or error
+        const isIN = detectStateFromTimezone();
+        // If likely India (timezone), show sassy permission message
+        // else show error with input
+        showState(isIN ? 'statePermission' : 'statePermission');
+      },
+      { timeout: 5000, maximumAge: 600000 }
     );
   } else {
     showState('statePermission');
   }
 }
 
-// ---- MANUAL INPUT ----
-function handleManualInput(inputId) {
-  const input = document.getElementById(inputId);
-  const val = input.value.trim();
-  if (!val) return;
-  const code = lookupCountryCode(val);
-  if (!code) {
-    showToast(`Hmm, "${val}" not found. Try: India, UK, USA, Germany, Australia…`);
-    return;
+function animateLoadingBar() {
+  const fill = document.getElementById('loadingFill');
+  if (fill) {
+    fill.style.width = '0%';
+    setTimeout(() => fill.style.width = '70%', 100);
+    setTimeout(() => fill.style.width = '100%', 1400);
   }
-  const rule = HOLIDAY_RULES.find(r => r.country === code);
-  const label = rule ? `${rule.flag} ${rule.countryLabel}` : val;
-  initWithCountry(code, label);
 }
 
-document.getElementById('countrySubmit').addEventListener('click', () => handleManualInput('countryInput'));
-document.getElementById('countryInput').addEventListener('keydown', e => { if (e.key === 'Enter') handleManualInput('countryInput'); });
-document.getElementById('countrySubmitError').addEventListener('click', () => handleManualInput('countryInputError'));
-document.getElementById('countryInputError').addEventListener('keydown', e => { if (e.key === 'Enter') handleManualInput('countryInputError'); });
+// ================================================================
+// RENDER RESULT
+// ================================================================
+function renderForCity(city) {
+  currentState = city.code;
+  currentCity  = city.name;
 
-// ---- COUNTRY GRID ----
-const grid = document.getElementById('countryGrid');
-COUNTRY_GRID.forEach(c => {
-  const chip = document.createElement('button');
-  chip.className = 'state-chip';
-  chip.innerHTML = `<span class="state-chip-icon">${c.flag}</span>${c.label}`;
-  chip.style.cursor = 'pointer';
-  chip.addEventListener('click', () => {
-    const rule = HOLIDAY_RULES.find(r => r.country === c.code);
-    const label = rule ? `${rule.flag} ${rule.countryLabel}` : c.label;
-    initWithCountry(c.code, label);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const result = checkHoliday(city.code, today);
+  currentResult = result;
+
+  // Update upcoming section
+  renderUpcoming(city.code, city.name);
+  renderStateTable();
+  renderQuickCities();
+
+  if (result.holiday) {
+    renderHoliday(result, city);
+  } else {
+    renderNotHoliday(result, city);
+  }
+}
+
+function renderHoliday(result, city) {
+  document.getElementById('locYes').textContent = `${city.name}, ${STATE_LABELS[city.code] || city.state}`;
+  document.getElementById('dayYes').textContent = today.toLocaleDateString('en-IN', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  document.getElementById('holidayPillName').textContent = result.name;
+  document.getElementById('quipYes').textContent = randomItem(HOLIDAY_QUIPS);
+  document.getElementById('noteYes').textContent = result.note || '';
+  document.getElementById('noteYes').style.display = result.note ? '' : 'none';
+
+  const dateStr = formatDateISO(today);
+  const crowd = getCrowdCount(city.code, dateStr);
+  if (crowd.dry > 0 || crowd.notDry > 0) {
+    document.getElementById('tallyYes').textContent = `${crowd.dry} confirmed · ${crowd.notDry} disputed`;
+  }
+
+  // Share
+  setupSharing(true, result.name, city);
+
+  // Crowd confirm
+  document.getElementById('confirmBtn').onclick = () => {
+    const ok = submitCrowdReport(city.code, dateStr, true);
+    if (ok) {
+      toast('✓ Thanks! Holiday confirmed.');
+      document.getElementById('tallyYes').textContent = 'Your confirmation recorded.';
+    } else {
+      toast('Already voted today.');
+    }
+  };
+
+  showState('stateHoliday');
+}
+
+function renderNotHoliday(result, city) {
+  document.getElementById('locNo').textContent = `${city.name}, ${STATE_LABELS[city.code] || city.state}`;
+  document.getElementById('dayNo').textContent = today.toLocaleDateString('en-IN', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  const g = randomItem(GUILT_MSGS);
+  document.getElementById('guiltMain').textContent = g.main;
+  document.getElementById('guiltSub').textContent = g.sub;
+
+  // Next holiday
+  const upcoming = getUpcomingHolidays(city.code, today, 1);
+  if (upcoming.length) {
+    const u = upcoming[0];
+    document.getElementById('nextDays').textContent = u.daysFrom + ' day' + (u.daysFrom === 1 ? '' : 's');
+    document.getElementById('nextName').textContent = u.name + ' · ' + u.date.toLocaleDateString('en-IN', { month:'short', day:'numeric' });
+  } else {
+    document.getElementById('nextBox').style.display = 'none';
+  }
+
+  const dateStr = formatDateISO(today);
+  const crowd = getCrowdCount(city.code, dateStr);
+  if (crowd.dry > 0) {
+    document.getElementById('tallyNo').textContent = `⚠ ${crowd.dry} user${crowd.dry > 1 ? 's' : ''} reported this as a holiday`;
+  }
+
+  // Report as holiday
+  document.getElementById('reportBtn').onclick = () => {
+    const ok = submitCrowdReport(city.code, dateStr, true);
+    if (ok) {
+      toast('⚠ Report submitted. Thanks!');
+      document.getElementById('tallyNo').textContent = 'Your report recorded. 3+ reports will show an alert.';
+    } else {
+      toast('Already voted today.');
+    }
+  };
+
+  setupSharing(false, null, city);
+  showState('stateNotHoliday');
+}
+
+function setupSharing(isHoliday, name, city) {
+  const loc = `${city.name}, ${STATE_LABELS[city.code] || city.state}`;
+  const dateStr = today.toLocaleDateString('en-IN', { month:'long', day:'numeric', year:'numeric' });
+  const msg = isHoliday
+    ? `🏦 YES — ${name} is a bank holiday in ${loc} today (${dateStr}). Check yours → isitabankholidaytoday.com`
+    : `🏦 NOPE — No bank holiday in ${loc} today. Go back to work. isitabankholidaytoday.com`;
+
+  const waId = isHoliday ? 'waYes' : 'waNo';
+  const xId  = isHoliday ? 'xYes' : 'xNo';
+  document.getElementById(waId).onclick = () =>
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  document.getElementById(xId).onclick = () =>
+    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ================================================================
+// UPCOMING HOLIDAYS
+// ================================================================
+function renderUpcoming(stateCode, cityName) {
+  document.getElementById('upcomingCity').textContent = cityName;
+  const list = getUpcomingHolidays(stateCode, today, 8);
+  const container = document.getElementById('upcomingList');
+  container.innerHTML = '';
+
+  list.forEach(h => {
+    const card = document.createElement('div');
+    card.className = 'upcoming-card';
+    card.innerHTML = `
+      <div class="upcoming-card-days">${h.daysFrom}<span> days</span></div>
+      <div class="upcoming-card-name">${h.name}</div>
+      <div class="upcoming-card-date">${h.date.toLocaleDateString('en-IN', { weekday:'short', month:'short', day:'numeric' })}</div>
+    `;
+    container.appendChild(card);
   });
-  grid.appendChild(chip);
-});
 
-// ============================================================
-// GAME ENGINE
-// ============================================================
+  if (!list.length) {
+    container.innerHTML = '<span style="font-size:12px;color:var(--fg3);padding:12px 0;display:block">No upcoming non-weekend bank holidays in the next 6 months.</span>';
+  }
+}
 
-document.querySelectorAll('.game-pick-btn').forEach(btn => {
+// ================================================================
+// STATE TABLE
+// ================================================================
+function renderStateTable() {
+  const table = document.getElementById('stateTable');
+  table.innerHTML = '';
+
+  const stateCodes = Object.keys(STATE_LABELS);
+  stateCodes.forEach(code => {
+    const r = checkHoliday(code, today);
+    const row = document.createElement('div');
+    row.className = 'state-row';
+    row.innerHTML = `
+      <span class="state-row-name">${STATE_LABELS[code]}</span>
+      <span class="state-row-dot ${r.holiday ? (r.category === 'national' ? 'dot-yes' : 'dot-holiday') : 'dot-no'}"
+            title="${r.holiday ? r.name : 'Working day'}"></span>
+    `;
+    row.onclick = () => {
+      const city = INDIA_CITIES.find(c => c.code === code) || { name: STATE_LABELS[code], code, state: STATE_LABELS[code] };
+      renderForCity(city);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    table.appendChild(row);
+  });
+}
+
+// ================================================================
+// QUICK CITIES (sidebar)
+// ================================================================
+function renderQuickCities() {
+  const el = document.getElementById('quickCityList');
+  if (!el) return;
+  el.innerHTML = '';
+  QUICK_CITIES.forEach(name => {
+    const city = INDIA_CITIES.find(c => c.name === name);
+    if (!city) return;
+    const r = checkHoliday(city.code, today);
+    const item = document.createElement('div');
+    item.className = 'quick-city-item';
+    item.innerHTML = `
+      <div class="quick-city-name">
+        <span>${city.name}</span>
+        <span class="quick-city-state">${STATE_LABELS[city.code]}</span>
+      </div>
+      <span class="quick-city-status ${r.holiday ? 'status-yes' : 'status-no'}">
+        ${r.holiday ? '✓ HOLIDAY' : '✗ OPEN'}
+      </span>
+    `;
+    item.onclick = () => {
+      renderForCity(city);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    el.appendChild(item);
+  });
+}
+
+// ================================================================
+// CITY AUTOCOMPLETE
+// ================================================================
+function setupCitySearch(inputId, dropdownId, goBtnId) {
+  const input    = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
+  const goBtn    = document.getElementById(goBtnId);
+  if (!input || !dropdown) return;
+
+  let focused = -1;
+
+  function search(q) {
+    if (!q || q.length < 2) { dropdown.classList.add('hidden'); return; }
+    const ql = q.toLowerCase();
+
+    // Score: starts-with gets priority, then contains
+    const scored = INDIA_CITIES
+      .map(c => {
+        const nl = c.name.toLowerCase();
+        const sl = c.state.toLowerCase();
+        let score = 0;
+        if (nl.startsWith(ql)) score = 100;
+        else if (nl.includes(ql)) score = 60;
+        else if (sl.startsWith(ql)) score = 40;
+        else if (sl.includes(ql)) score = 20;
+        return { city: c, score };
+      })
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
+
+    if (!scored.length) { dropdown.classList.add('hidden'); return; }
+
+    dropdown.innerHTML = '';
+    scored.forEach(({ city }, idx) => {
+      const opt = document.createElement('div');
+      opt.className = 'city-option';
+      opt.setAttribute('role', 'option');
+
+      // Highlight match
+      const name = city.name;
+      const matchIdx = name.toLowerCase().indexOf(ql);
+      let nameHtml = name;
+      if (matchIdx >= 0) {
+        nameHtml =
+          escHtml(name.slice(0, matchIdx)) +
+          `<span class="city-option-match">${escHtml(name.slice(matchIdx, matchIdx + ql.length))}</span>` +
+          escHtml(name.slice(matchIdx + ql.length));
+      }
+
+      opt.innerHTML = `<span>${nameHtml}</span><span class="city-option-state">${city.state}</span>`;
+      opt.addEventListener('click', () => selectCity(city, input, dropdown));
+      opt.addEventListener('mouseenter', () => {
+        focused = idx;
+        highlightOption(dropdown, focused);
+      });
+      dropdown.appendChild(opt);
+    });
+
+    dropdown.classList.remove('hidden');
+    focused = -1;
+  }
+
+  function highlightOption(dropdown, idx) {
+    dropdown.querySelectorAll('.city-option').forEach((o, i) => {
+      o.classList.toggle('focused', i === idx);
+    });
+  }
+
+  input.addEventListener('input', () => search(input.value));
+  input.addEventListener('focus', () => search(input.value));
+
+  input.addEventListener('keydown', e => {
+    const opts = dropdown.querySelectorAll('.city-option');
+    if (!opts.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      focused = Math.min(focused + 1, opts.length - 1);
+      highlightOption(dropdown, focused);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      focused = Math.max(focused - 1, 0);
+      highlightOption(dropdown, focused);
+    } else if (e.key === 'Enter') {
+      if (focused >= 0 && opts[focused]) {
+        opts[focused].click();
+      } else {
+        goBtn?.click();
+      }
+    } else if (e.key === 'Escape') {
+      dropdown.classList.add('hidden');
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+
+  if (goBtn) {
+    goBtn.addEventListener('click', () => {
+      const q = input.value.trim();
+      if (!q) return;
+      const match = INDIA_CITIES.find(c =>
+        c.name.toLowerCase() === q.toLowerCase() ||
+        c.name.toLowerCase().startsWith(q.toLowerCase())
+      );
+      if (match) selectCity(match, input, dropdown);
+      else toast(`"${q}" not found. Try: Mumbai, Delhi, Bangalore…`);
+    });
+  }
+}
+
+function selectCity(city, input, dropdown) {
+  input.value = city.name;
+  dropdown.classList.add('hidden');
+  renderForCity(city);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Setup both search inputs
+setupCitySearch('cityInput', 'cityDropdown', 'goBtn');
+setupCitySearch('cityInputErr', 'cityDropdownErr', 'goBtnErr');
+
+// ================================================================
+// GAMES
+// ================================================================
+document.querySelectorAll('.gpick').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.game-pick-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.gpick').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     launchGame(btn.dataset.game);
   });
 });
 
-document.getElementById('gameCloseBtn').addEventListener('click', () => {
-  stopActiveGame();
-  document.getElementById('gameContainer').classList.add('hidden');
-  document.getElementById('gameInvite').classList.remove('hidden');
-  document.querySelectorAll('.game-pick-btn').forEach(b => b.classList.remove('active'));
+document.getElementById('gameExit').addEventListener('click', () => {
+  if (activeGameDestroy) { activeGameDestroy(); activeGameDestroy = null; }
+  document.getElementById('gameEmbed').classList.add('hidden');
+  document.getElementById('gameUnlockBar').classList.remove('hidden');
+  document.querySelectorAll('.gpick').forEach(b => b.classList.remove('active'));
 });
 
-function launchGame(gameId) {
-  stopActiveGame();
-  document.getElementById('gameInvite').classList.add('hidden');
-  const container = document.getElementById('gameContainer');
-  container.classList.remove('hidden');
-  document.getElementById('gameCanvasWrap').innerHTML = '';
-  document.getElementById('gameScore').textContent = 'Score: 0';
-  document.getElementById('gameTimer').textContent = '';
+function launchGame(id) {
+  if (activeGameDestroy) { activeGameDestroy(); activeGameDestroy = null; }
+  document.getElementById('gameUnlockBar').classList.add('hidden');
+  const embed = document.getElementById('gameEmbed');
+  embed.classList.remove('hidden');
+  document.getElementById('gameBoard').innerHTML = '';
+  setHud(0, '');
 
-  const titles = { whackamole: '🐀 Whack-a-Boss', snake: '🐍 Snake', typingtest: '⌨️ Typing Speed' };
-  document.getElementById('gameTitleLabel').textContent = titles[gameId] || gameId;
+  const titles = { whackamole:'👨‍💼 WHACK-A-BOSS', snake:'🐍 OFFICE SNAKE', typing:'⌨️ TYPING TEST' };
+  document.getElementById('gameHudTitle').textContent = titles[id] || id;
 
-  if (gameId === 'whackamole') activeGame = initWhackAMole();
-  else if (gameId === 'snake') activeGame = initSnake();
-  else if (gameId === 'typingtest') activeGame = initTypingTest();
+  if (id === 'whackamole') activeGameDestroy = initWhackAMole();
+  else if (id === 'snake') activeGameDestroy = initSnake();
+  else if (id === 'typing') activeGameDestroy = initTyping();
 }
 
-function stopActiveGame() {
-  if (activeGame && activeGame.destroy) activeGame.destroy();
-  activeGame = null;
+function setHud(score, timer) {
+  document.getElementById('hudScore').textContent = `Score: ${score}`;
+  document.getElementById('hudTimer').textContent = timer;
 }
 
-function setScore(n) { document.getElementById('gameScore').textContent = `Score: ${n}`; }
-function setTimer(t) { document.getElementById('gameTimer').textContent = t; }
-
-// ----------------------------------------------------------------
-// GAME 1: WHACK-A-BOSS
-// ----------------------------------------------------------------
+// ---- WHACK A MOLE ----
 function initWhackAMole() {
-  const wrap = document.getElementById('gameCanvasWrap');
-  const BOSSES = ['👨‍💼','👩‍💼','🤵','👔','🧑‍💼'];
-  const MISS = ['😬','🙈','💨'];
-  let score = 0, timeLeft = 30, interval = null, timerInterval = null, isRunning = false;
+  const board = document.getElementById('gameBoard');
+  const BOSSES = ['👨‍💼','👩‍💼','🤵','👔','🧑‍💼','🙎‍♂️'];
+  let score = 0, timeLeft = 30, spawnInt = null, timerInt = null, running = false;
 
-  // Build grid
   const grid = document.createElement('div');
   grid.className = 'wam-grid';
-  const holes = [];
-  for (let i = 0; i < 9; i++) {
+
+  const holes = Array.from({ length: 9 }, (_, i) => {
     const hole = document.createElement('div');
     hole.className = 'wam-hole';
     const mole = document.createElement('div');
     mole.className = 'wam-mole';
-    mole.textContent = randomItem(BOSSES);
+    mole.textContent = BOSSES[i % BOSSES.length];
     hole.appendChild(mole);
-    hole.addEventListener('click', () => onHoleClick(i));
-    holes.push({ el: hole, mole, active: false });
-    grid.appendChild(hole);
-  }
-  wrap.appendChild(grid);
-
-  // Start overlay
-  const overlay = makeStartOverlay('Whack the bosses before they hide.\n30 seconds. Go.', start);
-  wrap.appendChild(overlay);
-
-  function start() {
-    overlay.remove();
-    isRunning = true;
-    timeLeft = 30;
-    score = 0;
-    setScore(0);
-    setTimer(`⏱ ${timeLeft}s`);
-
-    interval = setInterval(spawnMole, 600);
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      setTimer(`⏱ ${timeLeft}s`);
-      if (timeLeft <= 0) endGame();
-    }, 1000);
-  }
-
-  function spawnMole() {
-    const inactive = holes.filter(h => !h.active);
-    if (!inactive.length) return;
-    const h = randomItem(inactive);
-    h.active = true;
-    h.mole.textContent = randomItem(BOSSES);
-    h.el.classList.add('active');
-    setTimeout(() => {
-      if (h.active) { h.active = false; h.el.classList.remove('active'); }
-    }, 800 + Math.random() * 400);
-  }
-
-  function onHoleClick(i) {
-    if (!isRunning) return;
-    const h = holes[i];
-    if (h.active) {
-      h.active = false;
-      h.el.classList.remove('active');
-      h.el.classList.add('wam-hit-flash');
-      setTimeout(() => h.el.classList.remove('wam-hit-flash'), 200);
+    hole.addEventListener('click', () => {
+      if (!running || !hole.classList.contains('up')) return;
+      hole.classList.remove('up');
+      hole.classList.add('hit');
+      setTimeout(() => hole.classList.remove('hit'), 150);
       score++;
-      setScore(score);
-    }
-  }
+      mole.textContent = BOSSES[Math.floor(Math.random() * BOSSES.length)];
+      setHud(score, `⏱ ${timeLeft}s`);
+    });
+    grid.appendChild(hole);
+    return hole;
+  });
 
-  function endGame() {
-    isRunning = false;
-    clearInterval(interval);
-    clearInterval(timerInterval);
-    setTimer('⏱ 0s');
-    holes.forEach(h => { h.active = false; h.el.classList.remove('active'); });
-    setTimeout(() => showGameOver(score, 'whackamole'), 300);
-  }
+  board.appendChild(grid);
 
-  function destroy() { clearInterval(interval); clearInterval(timerInterval); }
-  return { destroy };
+  const overlay = makeOverlay('Whack the bosses before they hide.\n30 seconds. Go.', () => {
+    running = true;
+    spawnInt = setInterval(() => {
+      const inactive = holes.filter(h => !h.classList.contains('up'));
+      if (!inactive.length) return;
+      const h = inactive[Math.floor(Math.random() * inactive.length)];
+      h.classList.add('up');
+      setTimeout(() => h.classList.remove('up'), 900 + Math.random() * 400);
+    }, 550);
+    timerInt = setInterval(() => {
+      timeLeft--;
+      setHud(score, `⏱ ${timeLeft}s`);
+      if (timeLeft <= 0) {
+        running = false;
+        clearInterval(spawnInt); clearInterval(timerInt);
+        holes.forEach(h => h.classList.remove('up'));
+        setTimeout(() => showGameOver(score, 'whackamole'), 300);
+      }
+    }, 1000);
+  });
+
+  board.appendChild(overlay);
+  return () => { clearInterval(spawnInt); clearInterval(timerInt); };
 }
 
-// ----------------------------------------------------------------
-// GAME 2: SNAKE
-// ----------------------------------------------------------------
+// ---- SNAKE ----
 function initSnake() {
-  const wrap = document.getElementById('gameCanvasWrap');
-  const SIZE = 20, COLS = 15, ROWS = 15;
-  const W = SIZE * COLS, H = SIZE * ROWS;
+  const board = document.getElementById('gameBoard');
+  const CELL = 18, COLS = 16, ROWS = 16;
+  const W = CELL * COLS, H = CELL * ROWS;
 
   const canvas = document.createElement('canvas');
   canvas.id = 'snakeCanvas';
   canvas.width = W; canvas.height = H;
-  canvas.style.maxWidth = '100%';
 
-  const controls = document.createElement('div');
-  controls.className = 'snake-controls';
-  controls.innerHTML = `
-    <div class="snake-row"><button class="dpad-btn" data-dir="UP">▲</button></div>
-    <div class="snake-row">
-      <button class="dpad-btn" data-dir="LEFT">◀</button>
-      <button class="dpad-btn" data-dir="DOWN">▼</button>
-      <button class="dpad-btn" data-dir="RIGHT">▶</button>
+  const dpad = document.createElement('div');
+  dpad.className = 'dpad';
+  dpad.innerHTML = `
+    <div class="dpad-row"><button class="dpad-btn" data-d="U">▲</button></div>
+    <div class="dpad-row">
+      <button class="dpad-btn" data-d="L">◀</button>
+      <button class="dpad-btn" data-d="D">▼</button>
+      <button class="dpad-btn" data-d="R">▶</button>
     </div>`;
 
-  wrap.appendChild(canvas);
-  wrap.appendChild(controls);
+  board.appendChild(canvas);
+  board.appendChild(dpad);
 
   const ctx = canvas.getContext('2d');
-  let snake = [{x:7, y:7}], dir = {x:1, y:0}, nextDir = {x:1, y:0};
-  let food = spawnFood(), score = 0, loop = null, isRunning = false;
+  let snake = [{x:8,y:8}], dir={x:1,y:0}, nd={x:1,y:0}, food=sf(), score=0, loop=null;
 
-  // D-pad
-  controls.querySelectorAll('.dpad-btn').forEach(btn => {
-    const handler = () => {
-      const d = btn.dataset.dir;
-      if (d === 'UP' && dir.y === 0) nextDir = {x:0, y:-1};
-      if (d === 'DOWN' && dir.y === 0) nextDir = {x:0, y:1};
-      if (d === 'LEFT' && dir.x === 0) nextDir = {x:-1, y:0};
-      if (d === 'RIGHT' && dir.x === 0) nextDir = {x:1, y:0};
-    };
-    btn.addEventListener('click', handler);
-    btn.addEventListener('touchstart', e => { e.preventDefault(); handler(); }, {passive:false});
-  });
-
-  // Keyboard
-  const keyHandler = e => {
-    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
-    if (e.key === 'ArrowUp' && dir.y === 0) nextDir = {x:0, y:-1};
-    if (e.key === 'ArrowDown' && dir.y === 0) nextDir = {x:0, y:1};
-    if (e.key === 'ArrowLeft' && dir.x === 0) nextDir = {x:-1, y:0};
-    if (e.key === 'ArrowRight' && dir.x === 0) nextDir = {x:1, y:0};
-  };
-  document.addEventListener('keydown', keyHandler);
-
-  const overlay = makeStartOverlay('Classic Snake.\nDon\'t run into yourself.\nUse arrow keys or the D-pad.', start);
-  wrap.appendChild(overlay);
-
-  function start() {
-    overlay.remove();
-    isRunning = true;
-    loop = setInterval(tick, 150);
-  }
-
-  function spawnFood() {
-    return {
-      x: Math.floor(Math.random() * COLS),
-      y: Math.floor(Math.random() * ROWS),
-    };
-  }
-
-  function tick() {
-    dir = {...nextDir};
-    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-    if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) return endGame();
-    if (snake.some(s => s.x === head.x && s.y === head.y)) return endGame();
-    snake.unshift(head);
-    if (head.x === food.x && head.y === food.y) {
-      score++;
-      setScore(score);
-      food = spawnFood();
-    } else {
-      snake.pop();
-    }
-    draw();
+  function sf() {
+    let f;
+    do { f = { x:Math.floor(Math.random()*COLS), y:Math.floor(Math.random()*ROWS) }; }
+    while (snake.some(s=>s.x===f.x&&s.y===f.y));
+    return f;
   }
 
   function draw() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const bgColor = isDark ? '#0F1A0A' : '#EDE8DC';
-    const gridColor = isDark ? '#1E2E1622' : '#D4C9B022';
-    const snakeColor = isDark ? '#2ECC52' : '#0F5E2B';
-    const foodColor = isDark ? '#E04020' : '#B52B0F';
-
-    ctx.fillStyle = bgColor;
+    const dark = !html.getAttribute('data-theme');
+    ctx.fillStyle = dark ? '#0a0a0f' : '#e8e3d8';
     ctx.fillRect(0, 0, W, H);
-
-    // Grid dots
-    ctx.fillStyle = gridColor;
-    for (let x = 0; x < COLS; x++) for (let y = 0; y < ROWS; y++) {
-      ctx.fillRect(x * SIZE + SIZE/2 - 1, y * SIZE + SIZE/2 - 1, 2, 2);
-    }
-
-    // Food
-    ctx.fillStyle = foodColor;
-    ctx.font = `${SIZE - 2}px serif`;
+    // food
+    ctx.font = `${CELL-2}px serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('💼', food.x * SIZE + SIZE/2, food.y * SIZE + SIZE - 2);
-
-    // Snake
-    snake.forEach((seg, i) => {
-      ctx.fillStyle = i === 0 ? snakeColor : snakeColor + 'BB';
-      ctx.fillRect(seg.x * SIZE + 1, seg.y * SIZE + 1, SIZE - 2, SIZE - 2);
+    ctx.fillText('💼', food.x*CELL+CELL/2, food.y*CELL+CELL-1);
+    // snake
+    snake.forEach((s,i) => {
+      ctx.fillStyle = i===0 ? (dark?'#00ff88':'#007744') : (dark?'#00cc6688':'#00774488');
+      ctx.fillRect(s.x*CELL+1, s.y*CELL+1, CELL-2, CELL-2);
     });
   }
 
-  function endGame() {
-    isRunning = false;
-    clearInterval(loop);
-    setTimeout(() => showGameOver(score, 'snake'), 200);
+  function tick() {
+    dir = {...nd};
+    const head = { x:snake[0].x+dir.x, y:snake[0].y+dir.y };
+    if (head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS||snake.some(s=>s.x===head.x&&s.y===head.y)) {
+      clearInterval(loop);
+      setTimeout(() => showGameOver(score, 'snake'), 200);
+      return;
+    }
+    snake.unshift(head);
+    if (head.x===food.x&&head.y===food.y) {
+      score++; setHud(score, ''); food = sf();
+    } else { snake.pop(); }
+    draw();
   }
 
-  function destroy() {
-    clearInterval(loop);
-    document.removeEventListener('keydown', keyHandler);
-  }
+  const keyH = e => {
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    if (e.key==='ArrowUp'&&dir.y===0) nd={x:0,y:-1};
+    if (e.key==='ArrowDown'&&dir.y===0) nd={x:0,y:1};
+    if (e.key==='ArrowLeft'&&dir.x===0) nd={x:-1,y:0};
+    if (e.key==='ArrowRight'&&dir.x===0) nd={x:1,y:0};
+  };
+  document.addEventListener('keydown', keyH);
 
+  dpad.querySelectorAll('.dpad-btn').forEach(btn => {
+    const h = () => {
+      const d = btn.dataset.d;
+      if (d==='U'&&dir.y===0) nd={x:0,y:-1};
+      if (d==='D'&&dir.y===0) nd={x:0,y:1};
+      if (d==='L'&&dir.x===0) nd={x:-1,y:0};
+      if (d==='R'&&dir.x===0) nd={x:1,y:0};
+    };
+    btn.addEventListener('click', h);
+    btn.addEventListener('touchstart', e => { e.preventDefault(); h(); }, {passive:false});
+  });
+
+  const overlay = makeOverlay('Classic Snake.\nEat the briefcases.\nDon\'t crash.', () => {
+    loop = setInterval(tick, 140);
+  });
+  board.appendChild(overlay);
   draw();
-  return { destroy };
+
+  return () => { clearInterval(loop); document.removeEventListener('keydown', keyH); };
 }
 
-// ----------------------------------------------------------------
-// GAME 3: TYPING SPEED TEST
-// ----------------------------------------------------------------
-function initTypingTest() {
-  const wrap = document.getElementById('gameCanvasWrap');
-
+// ---- TYPING TEST ----
+function initTyping() {
+  const board = document.getElementById('gameBoard');
   const PASSAGES = [
-    "The quick brown fox jumps over the lazy dog while the bank remains closed on this glorious holiday.",
-    "Out of office replies activated. Notifications silenced. The world can wait until tomorrow morning.",
-    "Today is a bank holiday and absolutely nothing productive needs to happen. Close the laptop. Go outside.",
-    "Some people check emails on bank holidays. Those people are called managers and we pity them dearly.",
-    "The only deadline today is the kebab shop closing at eleven. Everything else can wait until Tuesday.",
-    "Working on a bank holiday is technically legal but morally questionable. Your therapist agrees with this.",
+    "Out of office reply activated. Notifications silenced. The world can wait until tomorrow morning.",
+    "Today is a bank holiday and absolutely nothing productive needs to happen. Close the laptop and go outside.",
+    "Some people check emails on bank holidays. Those people are called managers and we deeply pity them.",
+    "The only deadline today is the chai getting cold. Everything else can wait until next working day.",
+    "Working on a bank holiday is technically legal but morally questionable. Your therapist agrees.",
+    "RBI says no banking today. The universe says no working either. Far be it from us to argue.",
   ];
 
-  const passage = randomItem(PASSAGES);
-  let typed = '', started = false, startTime = null, finished = false, timerInt = null;
+  const passage = PASSAGES[Math.floor(Math.random() * PASSAGES.length)];
+  let typed = '', started = false, startTime = null, finished = false, timerInt = null, timeLeft = 60;
 
-  const div = document.createElement('div');
-  div.className = 'typing-wrap';
+  const wrap = document.createElement('div');
+  wrap.className = 'typing-wrap';
 
   const passageEl = document.createElement('div');
   passageEl.className = 'typing-passage';
 
   const input = document.createElement('input');
-  input.className = 'typing-input';
-  input.placeholder = 'Start typing…';
+  input.className = 'typing-area';
+  input.placeholder = 'Start typing to begin…';
   input.autocomplete = 'off';
   input.autocorrect = 'off';
   input.autocapitalize = 'off';
@@ -528,121 +640,155 @@ function initTypingTest() {
   const stats = document.createElement('div');
   stats.className = 'typing-stats';
   stats.innerHTML = `
-    <div><span class="typing-stat-val" id="wpmVal">—</span>WPM</div>
-    <div><span class="typing-stat-val" id="accVal">—</span>Accuracy</div>
-    <div><span class="typing-stat-val" id="timeVal">60</span>Seconds left</div>
+    <div><span class="tstat-val" id="twpm">—</span>WPM</div>
+    <div><span class="tstat-val" id="tacc">—</span>Accuracy</div>
+    <div><span class="tstat-val" id="tsec">60</span>Seconds</div>
   `;
 
-  div.appendChild(passageEl);
-  div.appendChild(input);
-  div.appendChild(stats);
-  wrap.appendChild(div);
+  wrap.appendChild(passageEl);
+  wrap.appendChild(input);
+  wrap.appendChild(stats);
+  board.appendChild(wrap);
 
-  function renderPassage() {
+  function render() {
     passageEl.innerHTML = '';
-    passage.split('').forEach((ch, i) => {
-      const span = document.createElement('span');
-      span.className = 'typing-char';
-      span.textContent = ch;
-      if (i < typed.length) span.classList.add(typed[i] === ch ? 'correct' : 'wrong');
-      if (i === typed.length) span.classList.add('cursor');
-      passageEl.appendChild(span);
+    [...passage].forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.className = 'tc';
+      s.textContent = ch;
+      if (i < typed.length) s.classList.add(typed[i] === ch ? 'ok' : 'bad');
+      if (i === typed.length) s.classList.add('cur');
+      passageEl.appendChild(s);
     });
   }
 
-  let timeLeft = 60;
-  renderPassage();
+  render();
+  setTimeout(() => input.focus(), 100);
 
   input.addEventListener('input', () => {
     if (finished) return;
     typed = input.value;
-
-    if (!started) {
-      started = true;
-      startTime = Date.now();
+    if (!started && typed.length > 0) {
+      started = true; startTime = Date.now();
       timerInt = setInterval(() => {
         timeLeft--;
-        const tv = document.getElementById('timeVal');
-        if (tv) tv.textContent = timeLeft;
-        setTimer(`⏱ ${timeLeft}s`);
-        if (timeLeft <= 0) endGame();
+        const el = document.getElementById('tsec');
+        if (el) el.textContent = timeLeft;
+        setHud(calcWpm(), `⏱ ${timeLeft}s`);
+        if (timeLeft <= 0) end();
       }, 1000);
     }
-
-    renderPassage();
-
-    // WPM
-    const elapsed = (Date.now() - startTime) / 60000;
-    const words = typed.trim().split(' ').length;
-    const wpm = elapsed > 0 ? Math.round(words / elapsed) : 0;
-    const el = document.getElementById('wpmVal');
-    if (el) el.textContent = wpm;
-    setScore(wpm);
-
-    // Accuracy
-    const correct = typed.split('').filter((c, i) => c === passage[i]).length;
-    const acc = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 100;
-    const ae = document.getElementById('accVal');
-    if (ae) ae.textContent = acc + '%';
-
-    // Complete?
-    if (typed === passage) endGame();
+    render();
+    const wpm = calcWpm();
+    const acc = calcAcc();
+    setHud(wpm, `⏱ ${timeLeft}s`);
+    const we = document.getElementById('twpm'); if (we) we.textContent = wpm;
+    const ae = document.getElementById('tacc'); if (ae) ae.textContent = acc + '%';
+    if (typed === passage) end();
   });
 
-  input.focus();
-
-  function endGame() {
+  function calcWpm() {
+    if (!startTime) return 0;
+    const mins = (Date.now() - startTime) / 60000;
+    return mins > 0 ? Math.round(typed.trim().split(' ').length / mins) : 0;
+  }
+  function calcAcc() {
+    if (!typed.length) return 100;
+    const ok = [...typed].filter((c, i) => c === passage[i]).length;
+    return Math.round(ok / typed.length * 100);
+  }
+  function end() {
     if (finished) return;
-    finished = true;
-    clearInterval(timerInt);
-    input.disabled = true;
-    const elapsed = startTime ? (Date.now() - startTime) / 60000 : 1;
-    const words = typed.trim().split(' ').length;
-    const finalWpm = Math.round(words / elapsed);
-    const correct = typed.split('').filter((c, i) => c === passage[i]).length;
-    const acc = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 0;
-    setTimeout(() => showGameOver(finalWpm, 'typingtest', `${acc}% accuracy`), 400);
+    finished = true; clearInterval(timerInt); input.disabled = true;
+    const wpm = calcWpm(); const acc = calcAcc();
+    setTimeout(() => showGameOver(wpm, 'typing', `${acc}% accuracy`), 300);
   }
 
-  function destroy() { clearInterval(timerInt); }
-  return { destroy };
+  return () => clearInterval(timerInt);
 }
 
-// ---- SHARED GAME OVER ----
-function showGameOver(score, gameId, extra) {
-  const wrap = document.getElementById('gameCanvasWrap');
-  const quip = randomItem(GAME_OVER_QUIPS[gameId] || ['Nice try.']);
+// ---- GAME HELPERS ----
+function makeOverlay(msg, onStart) {
   const div = document.createElement('div');
-  div.className = 'game-over-overlay';
-  div.innerHTML = `
-    <div class="game-over-label">FINAL SCORE</div>
-    <div class="game-over-score">${score}</div>
-    ${extra ? `<div class="game-over-label">${extra}</div>` : ''}
-    <div class="game-over-quip">${quip}</div>
-    <button class="game-start-btn" id="playAgainBtn">Play Again</button>
-  `;
-  wrap.appendChild(div);
-  document.getElementById('playAgainBtn').addEventListener('click', () => {
-    const active = document.querySelector('.game-pick-btn.active');
-    if (active) launchGame(active.dataset.game);
-  });
-}
-
-// ---- SHARED START OVERLAY ----
-function makeStartOverlay(msg, onStart) {
-  const div = document.createElement('div');
-  div.className = 'game-start-overlay';
+  div.className = 'game-overlay';
   const p = document.createElement('p');
   p.className = 'game-start-msg';
+  p.style.whiteSpace = 'pre-line';
   p.textContent = msg;
   const btn = document.createElement('button');
   btn.className = 'game-start-btn';
   btn.textContent = 'START';
-  btn.addEventListener('click', onStart);
-  div.appendChild(p);
-  div.appendChild(btn);
+  btn.addEventListener('click', () => { div.remove(); onStart(); });
+  div.appendChild(p); div.appendChild(btn);
   return div;
 }
 
-// ---- GO ----
+function showGameOver(score, gameId, extra) {
+  const board = document.getElementById('gameBoard');
+  const quip = randomItem(GAME_OVER_QUIPS[gameId] || ['Nice try.']);
+  const div = document.createElement('div');
+  div.className = 'game-overlay';
+  div.innerHTML = `
+    <div class="game-overlay-label">FINAL SCORE</div>
+    <div class="game-overlay-score">${score}</div>
+    ${extra ? `<div class="game-overlay-label">${extra}</div>` : ''}
+    <div class="game-overlay-quip">${quip}</div>
+    <button class="game-again-btn" id="againBtn">PLAY AGAIN</button>
+  `;
+  board.appendChild(div);
+  document.getElementById('againBtn').onclick = () => {
+    const active = document.querySelector('.gpick.active');
+    if (active) launchGame(active.dataset.game);
+  };
+}
+
+// ================================================================
+// ADMIN PANEL
+// ================================================================
+function renderAdminList() {
+  const list = document.getElementById('adminList');
+  if (!list) return;
+  const overrides = getAdminOverrides();
+  list.innerHTML = '';
+  if (!overrides.length) {
+    list.innerHTML = '<div style="font-size:11px;color:var(--fg3);padding:8px 0">No overrides yet.</div>';
+    return;
+  }
+  overrides.forEach((o, i) => {
+    const row = document.createElement('div');
+    row.className = 'admin-override-item';
+    row.innerHTML = `
+      <span>${o.date} · ${o.state} · ${o.name}</span>
+      <button class="admin-del" onclick="deleteAdminOverride(${i});renderAdminList();toast('Override deleted.')">✕</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('adminSubmit').addEventListener('click', () => {
+  const pwd   = document.getElementById('adminPwd').value;
+  const date  = document.getElementById('adminDate').value;
+  const state = document.getElementById('adminState').value.toUpperCase().trim();
+  const name  = document.getElementById('adminName').value.trim();
+  const note  = document.getElementById('adminNote').value.trim();
+  const r = addAdminOverride(pwd, date, state, name, note);
+  if (r.ok) {
+    toast('✓ Override added!');
+    document.getElementById('adminDate').value = '';
+    document.getElementById('adminState').value = '';
+    document.getElementById('adminName').value = '';
+    document.getElementById('adminNote').value = '';
+    renderAdminList();
+    // Re-render if current date matches
+    if (currentState) renderForCity(INDIA_CITIES.find(c => c.code === currentState) || { code: currentState, name: currentCity, state: STATE_LABELS[currentState] });
+  } else {
+    toast('✗ ' + r.msg);
+  }
+});
+
+renderAdminList();
+
+// ================================================================
+// BOOT
+// ================================================================
 init();

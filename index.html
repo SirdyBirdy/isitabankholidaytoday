@@ -1,184 +1,278 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Is It A Bank Holiday Today? | Check Bank Holidays by Location</title>
-  <meta name="description" content="Instantly check if today is a bank holiday in your country. If it is — play a game. If it isn't — go back to work." />
+  <title>Is It a Bank Holiday Today? | India Bank Holiday Checker 2026</title>
+  <meta name="description" content="Is today a bank holiday in India? Instantly check bank holidays for Mumbai, Delhi, Bangalore, Chennai, Hyderabad, Kolkata and all Indian states. Updated for 2026." />
+  <meta name="keywords" content="bank holiday today india, is today bank holiday, bank holiday mumbai, bank holiday delhi, bank holiday 2026, bank holiday bangalore, rbi bank holiday, bank holiday list india, public holiday today india, is bank open today india" />
   <link rel="canonical" href="https://isitabankholidaytoday.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://isitabankholidaytoday.com/" />
+  <meta property="og:title" content="Is It a Bank Holiday Today in India?" />
+  <meta property="og:description" content="Instantly check if today is a bank holiday in your Indian city. Because sometimes you just need to know before leaving the house." />
+  <meta property="og:locale" content="en_IN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Is It a Bank Holiday Today? 🏦" />
+  <meta name="twitter:description" content="Check bank holidays for your Indian city instantly." />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Is It a Bank Holiday Today?","url":"https://isitabankholidaytoday.com","description":"Instantly check if today is a bank holiday in any Indian city or state. Covers RBI mandated holidays, state-specific public holidays, and crowdsourced reports.","applicationCategory":"UtilityApplication","operatingSystem":"Web","inLanguage":"en-IN","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is today a bank holiday in India?","acceptedAnswer":{"@type":"Answer","text":"Use the checker above to instantly see if today is a bank holiday in your city. India has national bank holidays (Republic Day Jan 26, Independence Day Aug 15, Gandhi Jayanti Oct 2) plus state-specific holidays that vary by location."}},{"@type":"Question","name":"How many bank holidays are there in India in 2026?","acceptedAnswer":{"@type":"Answer","text":"India has around 14-21 bank holidays per year depending on the state, including national holidays mandated by the RBI and additional state-specific holidays."}},{"@type":"Question","name":"Are banks open on 2nd Saturday in India?","acceptedAnswer":{"@type":"Answer","text":"No. Indian banks are closed on the 2nd and 4th Saturdays of every month, all Sundays, and all gazetted bank holidays."}},{"@type":"Question","name":"What is the bank holiday list for Mumbai 2026?","acceptedAnswer":{"@type":"Answer","text":"Mumbai follows Maharashtra state bank holidays including national holidays and regional observances like Gudi Padwa, Maharashtra Day, Dr. Ambedkar Jayanti, and others. Use the checker above for today's status."}}]}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&family=Vollkorn:ital,wght@0,400;1,400;1,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <div class="site-wrapper">
+<div class="noise" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
 
-    <header class="site-header">
-      <div class="logo">
-        <span class="logo-main">isita</span><span class="logo-accent">bankholiday</span><span class="logo-main">today</span><span class="logo-dot">.com</span>
+<div class="page-wrap">
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-block">
+        <div class="logo-stamp">OFFICIAL</div>
+        <div class="logo-text">isitabankholiday<span class="logo-accent">today</span><span class="logo-tld">.com</span></div>
       </div>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-        <span class="toggle-track">
-          <span class="toggle-thumb"></span>
-          <span class="toggle-icon sun">☀</span>
-          <span class="toggle-icon moon">☽</span>
-        </span>
-      </button>
-    </header>
+      <div class="header-right">
+        <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+        <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker" id="ticker">
+        <span>🏦 INDIA BANK HOLIDAY CHECKER 2026</span><span>📍 LOCATION DETECTION ACTIVE</span><span>✦ IS YOUR BANK OPEN TODAY?</span><span>🇮🇳 RBI HOLIDAY DATABASE LOADED</span><span>⚡ CROWDSOURCED REPORTS ENABLED</span><span>🏦 INDIA BANK HOLIDAY CHECKER 2026</span><span>📍 LOCATION DETECTION ACTIVE</span><span>✦ IS YOUR BANK OPEN TODAY?</span><span>🇮🇳 RBI HOLIDAY DATABASE LOADED</span><span>⚡ CROWDSOURCED REPORTS ENABLED</span>
+      </div>
+    </div>
+  </header>
 
-    <main class="main-content">
-      <section class="hero">
-        <div class="hero-eyebrow">The only question that matters on a Monday morning.</div>
+  <main>
+    <section class="hero-section">
 
-        <!-- LOADING -->
-        <div class="state" id="stateLoading">
-          <div class="answer-word loading-word"><span>Checking...</span></div>
-          <p class="subtext loading-text">Consulting the official government calendar of excuses…</p>
+      <!-- LOADING -->
+      <div class="app-state" id="stateLoading">
+        <div class="loading-block">
+          <div class="loading-glyph">⟳</div>
+          <p class="loading-label">Consulting the RBI calendar…</p>
+          <div class="loading-bar"><div class="loading-fill" id="loadingFill"></div></div>
         </div>
+      </div>
 
-        <!-- PERMISSION DENIED -->
-        <div class="state hidden" id="statePermission">
-          <div class="answer-word answer-unknown"><span>Really?</span></div>
-          <p class="subtext">You blocked location. Bold move. Enter your country below.</p>
-          <div class="manual-input">
-            <input type="text" id="countryInput" placeholder="e.g. India, UK, USA…" autocomplete="off" />
-            <button id="countrySubmit">Go</button>
+      <!-- PERMISSION DENIED -->
+      <div class="app-state hidden" id="statePermission">
+        <div class="perm-block">
+          <div class="perm-stamp-wrap">
+            <div class="perm-stamp">ACCESS<br>DENIED</div>
           </div>
-        </div>
-
-        <!-- YES — BANK HOLIDAY -->
-        <div class="state hidden" id="stateHoliday">
-          <div class="result-stamp">
-            <div class="stamp-ring">
-              <div class="answer-word answer-yes"><span>YES!</span></div>
+          <p class="perm-headline">You denied location access.<br>Absolutely unbelievable.</p>
+          <p class="perm-sub">Fine. Type your city below and we'll forget this ever happened.</p>
+          <div class="city-search-wrap">
+            <div class="city-row">
+              <span class="city-pin">📍</span>
+              <input type="text" id="cityInput" class="city-input" placeholder="Start typing a city…" autocomplete="off" spellcheck="false" aria-label="Enter your city" aria-autocomplete="list" aria-controls="cityDropdown" />
+              <button class="go-btn" id="goBtn">GO →</button>
             </div>
-          </div>
-          <p class="location-tag" id="locationTagHoliday"></p>
-          <p class="subtext" id="subtextHoliday"></p>
-          <p class="holiday-note" id="holidayNote"></p>
-
-          <!-- GAME INVITE -->
-          <div class="game-invite" id="gameInvite">
-            <div class="game-invite-header">🎮 You've earned this.</div>
-            <p class="game-invite-text">The bank is closed. Your boss can't reach you. The universe has handed you a free pass. Choose your procrastination vehicle:</p>
-            <div class="game-picker">
-              <button class="game-pick-btn" data-game="whackamole">🐀 Whack-a-Boss</button>
-              <button class="game-pick-btn" data-game="snake">🐍 Snake</button>
-              <button class="game-pick-btn" data-game="typingtest">⌨️ Typing Speed</button>
-            </div>
-          </div>
-
-          <!-- GAME CONTAINER -->
-          <div class="game-container hidden" id="gameContainer">
-            <div class="game-header">
-              <span class="game-title-label" id="gameTitleLabel"></span>
-              <div class="game-stats">
-                <span id="gameScore">Score: 0</span>
-                <span id="gameTimer"></span>
-              </div>
-              <button class="game-close-btn" id="gameCloseBtn">✕ Back</button>
-            </div>
-            <div class="game-canvas-wrap" id="gameCanvasWrap">
-              <!-- Game renders here -->
-            </div>
+            <div class="city-dropdown hidden" id="cityDropdown" role="listbox"></div>
           </div>
         </div>
+      </div>
 
-        <!-- NO — NOT A HOLIDAY -->
-        <div class="state hidden" id="stateNotHoliday">
-          <div class="result-stamp nope-stamp">
-            <div class="stamp-ring stamp-ring-no">
-              <div class="answer-word answer-no"><span>NOPE.</span></div>
+      <!-- YES — HOLIDAY -->
+      <div class="app-state hidden" id="stateHoliday">
+        <div class="result-block">
+          <div class="result-top-row">
+            <div class="result-stamp stamp-yes">HOLIDAY<br>CONFIRMED</div>
+            <div class="result-meta">
+              <div class="result-location" id="locYes"></div>
+              <div class="result-day" id="dayYes"></div>
             </div>
           </div>
-          <p class="location-tag" id="locationTagNotHoliday"></p>
-          <div class="guilt-trip" id="guiltTrip">
+          <div class="big-word yes-word">
+            <span>Y</span><span>E</span><span>S</span><span>!</span>
+          </div>
+          <div class="holiday-pill" id="holidayPill">
+            <span class="holiday-pill-tag">TODAY IS</span>
+            <span class="holiday-pill-name" id="holidayPillName"></span>
+          </div>
+          <p class="result-quip" id="quipYes"></p>
+          <p class="result-note" id="noteYes"></p>
+
+          <div class="game-unlock-bar" id="gameUnlockBar">
+            <span class="game-unlock-label">🕹 GAMES UNLOCKED — it's a holiday, you've earned this</span>
+            <div class="game-pick-row" id="gamePickRow">
+              <button class="gpick" data-game="whackamole"><span>👨‍💼</span>Whack-a-Boss</button>
+              <button class="gpick" data-game="snake"><span>🐍</span>Office Snake</button>
+              <button class="gpick" data-game="typing"><span>⌨️</span>Typing Test</button>
+            </div>
+          </div>
+
+          <div class="game-embed hidden" id="gameEmbed">
+            <div class="game-hud">
+              <span class="game-hud-title" id="gameHudTitle"></span>
+              <span id="hudScore">Score: 0</span>
+              <span id="hudTimer"></span>
+              <button class="game-exit" id="gameExit">✕ EXIT</button>
+            </div>
+            <div class="game-board" id="gameBoard"></div>
+          </div>
+
+          <div class="action-row">
+            <button class="spill pill-wa" id="waYes">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </button>
+            <button class="spill pill-x" id="xYes">𝕏 Post</button>
+            <button class="spill pill-confirm" id="confirmBtn">✓ Confirm holiday</button>
+          </div>
+          <div class="crowd-tally" id="tallyYes"></div>
+        </div>
+      </div>
+
+      <!-- NOPE — NOT HOLIDAY -->
+      <div class="app-state hidden" id="stateNotHoliday">
+        <div class="result-block">
+          <div class="result-top-row">
+            <div class="result-stamp stamp-no">HOLIDAY<br>REJECTED</div>
+            <div class="result-meta">
+              <div class="result-location" id="locNo"></div>
+              <div class="result-day" id="dayNo"></div>
+            </div>
+          </div>
+          <div class="big-word no-word">
+            <span>N</span><span>O</span><span>P</span><span>E</span><span>.</span>
+          </div>
+          <div class="guilt-block">
             <div class="guilt-main" id="guiltMain"></div>
             <div class="guilt-sub" id="guiltSub"></div>
           </div>
-          <div class="countdown-box" id="countdownBox">
-            <div class="countdown-label">Next bank holiday in</div>
-            <div class="countdown-value" id="nextHolidayCountdown"></div>
-            <div class="countdown-name" id="nextHolidayName"></div>
+          <div class="next-box" id="nextBox">
+            <span class="next-tag">NEXT BANK HOLIDAY</span>
+            <span class="next-days" id="nextDays"></span>
+            <span class="next-name" id="nextName"></span>
           </div>
-        </div>
-
-        <!-- ERROR -->
-        <div class="state hidden" id="stateError">
-          <div class="answer-word answer-unknown"><span>¯\_(ツ)_/¯</span></div>
-          <p class="subtext">Couldn't figure out where you are. Try entering your country.</p>
-          <div class="manual-input">
-            <input type="text" id="countryInputError" placeholder="e.g. Germany, Australia…" autocomplete="off" />
-            <button id="countrySubmitError">Go</button>
+          <div class="action-row">
+            <button class="spill pill-wa" id="waNo">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Share
+            </button>
+            <button class="spill pill-x" id="xNo">𝕏 Post</button>
+            <button class="spill pill-report" id="reportBtn">⚠ Report as holiday</button>
           </div>
-        </div>
-
-      </section>
-
-      <!-- ACTION ROW -->
-      <div class="action-row">
-        <div class="date-pill" id="datePill"></div>
-        <div class="share-actions hidden" id="shareActions">
-          <button class="share-btn btn-whatsapp" id="btnWhatsapp">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            WhatsApp
-          </button>
-          <button class="share-btn btn-twitter" id="btnTwitter">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            Post
-          </button>
+          <div class="crowd-tally" id="tallyNo"></div>
         </div>
       </div>
 
-      <!-- SEO SECTION -->
-      <section class="seo-section">
-        <h1 class="seo-title">Is Today a Bank Holiday?</h1>
-        <div class="seo-body">
-          <p>A <strong>bank holiday</strong> is an officially recognised public holiday when banks, government offices, and most businesses close. In <strong>India</strong>, national bank holidays include Republic Day (Jan 26), Independence Day (Aug 15), Gandhi Jayanti (Oct 2), plus a long list of state-level holidays. The <strong>UK</strong> gets 8 bank holidays a year. The <strong>US</strong> gets 11 federal holidays. Germany gets 9–13 depending on the state.</p>
-          <p>We check your location against a database of public holidays, and give you the honest answer: yes (with a game) or no (with a stern warning). Use the time accordingly.</p>
-        </div>
-        <div class="country-grid-section">
-          <h2 class="state-grid-title">Countries Covered</h2>
-          <div class="state-grid" id="countryGrid"></div>
-        </div>
-      </section>
-
-      <section class="info-strip">
-        <div class="info-card">
-          <div class="info-icon">🏦</div>
-          <div class="info-text">
-            <strong>What's a bank holiday?</strong>
-            <span>An official public holiday when banks close. Usually tied to national events, religious observances, or government mandates.</span>
+      <!-- ERROR -->
+      <div class="app-state hidden" id="stateError">
+        <div class="perm-block">
+          <div class="perm-stamp-wrap">
+            <div class="perm-stamp" style="border-color:var(--amber)">ERROR<br>404</div>
+          </div>
+          <p class="perm-headline">Couldn't detect your location.</p>
+          <p class="perm-sub">Type your city below — we've got you.</p>
+          <div class="city-search-wrap">
+            <div class="city-row">
+              <span class="city-pin">📍</span>
+              <input type="text" id="cityInputErr" class="city-input" placeholder="Start typing a city…" autocomplete="off" spellcheck="false" />
+              <button class="go-btn" id="goBtnErr">GO →</button>
+            </div>
+            <div class="city-dropdown hidden" id="cityDropdownErr" role="listbox"></div>
           </div>
         </div>
-        <div class="info-card">
-          <div class="info-icon">📍</div>
-          <div class="info-text">
-            <strong>Location-based</strong>
-            <span>Rules vary wildly by country and state. We use your GPS to give you the most accurate answer possible.</span>
+      </div>
+
+    </section>
+
+    <!-- DATE BAR -->
+    <div class="date-bar">
+      <span id="dateBarText"></span>
+      <span class="date-bar-r">India · 2026</span>
+    </div>
+
+    <!-- UPCOMING -->
+    <section class="upcoming-section" id="upcomingSection">
+      <div class="section-hdr">
+        <span class="section-lbl">UPCOMING BANK HOLIDAYS</span>
+        <span class="section-loc" id="upcomingCity"></span>
+      </div>
+      <div class="upcoming-scroll" id="upcomingList"></div>
+    </section>
+
+    <!-- SEO SECTION -->
+    <section class="seo-section">
+      <div class="seo-grid">
+        <div class="seo-main-col">
+          <h1 class="seo-h1">Is Today a Bank Holiday in India?</h1>
+          <div class="seo-body">
+            <p>A <strong>bank holiday</strong> in India is an officially gazetted day when all scheduled commercial banks remain closed, as mandated by the Reserve Bank of India (RBI) or respective state governments. India observes two categories: <strong>national holidays</strong> uniform across all states, and <strong>state-specific holidays</strong> that vary by region.</p>
+            <h2 class="seo-h2">National Bank Holidays in India 2026</h2>
+            <p>Three mandatory national bank holidays apply every year. <strong>Republic Day (January 26)</strong> commemorates the enactment of the Indian Constitution in 1950. <strong>Independence Day (August 15)</strong> marks the end of British colonial rule. <strong>Gandhi Jayanti (October 2)</strong> honours Mahatma Gandhi's birth anniversary.</p>
+            <h2 class="seo-h2">Bank Holidays by City — Mumbai, Delhi, Bangalore</h2>
+            <p><strong>Mumbai</strong> and Maharashtra observe Gudi Padwa, Maharashtra Day (May 1), and Dr. B.R. Ambedkar Jayanti (April 14). <strong>Delhi</strong> follows central government holidays. <strong>Bangalore</strong> (Karnataka) observes Kannada Rajyotsava (November 1). <strong>Chennai</strong> (Tamil Nadu) has Tamil New Year and Pongal. <strong>Hyderabad</strong> observes Telangana Formation Day.</p>
+            <h2 class="seo-h2">Second and Fourth Saturday Bank Holidays</h2>
+            <p>Indian banks are closed on the <strong>2nd and 4th Saturdays</strong> of every month, all Sundays, and all gazetted bank holidays. This policy was introduced by the RBI and applies to all scheduled commercial banks. Some private sector banks may have slightly different arrangements.</p>
+            <h2 class="seo-h2">How We Check Bank Holidays</h2>
+            <p>We use your GPS to determine your state and city, then cross-reference against our RBI-mandated and state-gazetted holiday database. Crowdsourced reports from visitors catch last-minute announcements. Admin overrides let us add emergency holidays within minutes of announcement.</p>
           </div>
         </div>
-        <div class="info-card">
-          <div class="info-icon">🎮</div>
-          <div class="info-text">
-            <strong>Holiday = game time</strong>
-            <span>If it IS a holiday, we reward you with a game. If it isn't, we tell you to close this tab and get back to work.</span>
+        <div class="seo-side-col">
+          <div class="quick-city-card">
+            <div class="card-hdr">QUICK CHECK BY CITY</div>
+            <div class="quick-city-list" id="quickCityList"></div>
+          </div>
+          <div class="faq-card">
+            <div class="card-hdr">FREQUENTLY ASKED</div>
+            <details class="faq-item"><summary>Are banks open on 2nd Saturday?</summary><p>No. Indian banks are closed on the 2nd and 4th Saturdays of every month, in addition to all Sundays and gazetted holidays.</p></details>
+            <details class="faq-item"><summary>Is today a bank holiday in Mumbai?</summary><p>Click Mumbai in the quick check above to instantly see today's status for Mumbai, Maharashtra.</p></details>
+            <details class="faq-item"><summary>How many bank holidays in 2026?</summary><p>India has approximately 14–21 bank holidays per year depending on the state. State governments add regional observances.</p></details>
+            <details class="faq-item"><summary>Can I report a bank holiday?</summary><p>Yes! If your bank is unexpectedly closed today, click "Report as Holiday" so other users know.</p></details>
           </div>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
 
-    <footer class="site-footer">
-      <p class="footer-disclaimer"><em>isitabankholidaytoday.com</em> is an informational project. Data is based on publicly known legislation. We are not responsible for you missing work, playing Snake instead of doing your TPS reports, or getting fired as a result of consulting this website. Drink responsibly. Work grudgingly.</p>
-      <p class="footer-copy">© <span id="footerYear"></span> isitabankholidaytoday.com — Made during what was, ironically, not a bank holiday.</p>
-    </footer>
-  </div>
+    <!-- STATE TABLE -->
+    <section class="state-table-section">
+      <div class="section-hdr">
+        <span class="section-lbl">STATE-WISE STATUS TODAY</span>
+      </div>
+      <div class="state-table" id="stateTable"></div>
+    </section>
 
-  <div class="toast" id="toast"></div>
+    <!-- ADMIN PANEL -->
+    <section class="admin-panel hidden" id="adminPanel">
+      <div class="admin-inner">
+        <div class="admin-hdr">⚙ ADMIN — ADD HOLIDAY OVERRIDE</div>
+        <p class="admin-note">Overrides are stored in localStorage and take precedence over the static database. To share overrides across users, configure a Google Sheet URL in app.js.</p>
+        <div class="admin-form">
+          <input type="password" id="adminPwd" placeholder="Admin password (default: holiday2026)" class="admin-input" />
+          <input type="date" id="adminDate" class="admin-input" />
+          <input type="text" id="adminState" placeholder="State code: MH · DL · KA · TN · ALL" class="admin-input" />
+          <input type="text" id="adminName" placeholder="Holiday name (e.g. Diwali)" class="admin-input" />
+          <textarea id="adminNote" placeholder="Note for users…" class="admin-input" rows="2"></textarea>
+          <button class="admin-submit" id="adminSubmit">+ ADD OVERRIDE</button>
+        </div>
+        <div class="admin-list" id="adminList"></div>
+      </div>
+    </section>
 
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">isitabankholidaytoday.com</div>
+      <p class="footer-disc">Data is based on RBI and state government legislation. Crowdsourced reports are unverified. We are not responsible for missed EMI payments, failed transactions, or bank queue trauma. Always verify before you act. Especially for large sums.</p>
+      <div class="footer-links">
+        <a href="#" id="adminToggle">Admin</a> ·
+        <span>© <span id="footerYear"></span> isitabankholidaytoday.com</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<div class="toast-el" id="toast"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
