@@ -1,6 +1,6 @@
 /* ================================================
-   IS IT A BANK HOLIDAY TODAY? — STYLES
-   AESTHETIC: Retro Indian Govt Office × Neon Rave
+   IS IT A BANK HOLIDAY TODAY? - STYLES
+   AESTHETIC: Retro Indian Govt Office x Neon Rave
    ================================================ */
 
 :root {
@@ -79,7 +79,8 @@ body {
     rgba(0,0,0,0.03) 4px
   );
 }
-[data-theme="light"] .scanlines, [data-theme="light"] .noise { opacity: 0; }
+[data-theme="light"] .scanlines,
+[data-theme="light"] .noise { opacity: 0; }
 
 /* ---- LAYOUT ---- */
 .page-wrap {
@@ -89,6 +90,29 @@ body {
 }
 
 .hidden { display: none !important; }
+
+/* ---- AD SLOTS ---- */
+.ad-slot {
+  width: 100%;
+  background: transparent;
+  text-align: center;
+  overflow: hidden;
+}
+.ad-slot-top {
+  padding: 8px 0 0;
+  border-bottom: 1px solid var(--border2);
+  min-height: 50px;
+}
+.ad-slot-mid {
+  padding: 20px 0;
+  border-top: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
+  min-height: 90px;
+}
+.ad-slot-seo {
+  padding: 20px 0;
+  min-height: 90px;
+}
 
 /* ---- HEADER ---- */
 .site-header {
@@ -176,8 +200,8 @@ body {
 .loading-glyph {
   font-size: 60px; color: var(--neon);
   animation: spin 1.2s linear infinite;
-  display: block; width: 70px; height: 70px;
   display: flex; align-items: center; justify-content: center;
+  width: 70px; height: 70px;
 }
 @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
 .loading-label {
@@ -649,7 +673,7 @@ body {
 }
 .faq-item summary:hover { background: var(--bg3); }
 .faq-item summary::after { content: '+'; color: var(--neon); }
-.faq-item[open] summary::after { content: '−'; }
+.faq-item[open] summary::after { content: '-'; }
 .faq-item p {
   padding: 0 14px 12px; font-size: 12px; color: var(--fg2); line-height: 1.65;
 }
@@ -711,6 +735,30 @@ body {
   font-size: 11px; color: var(--fg2); background: var(--bg);
 }
 .admin-del { background: none; border: none; color: var(--neon2); cursor: pointer; font-size: 14px; }
+
+/* ---- SISTER SITES BAR ---- */
+.sister-sites-bar {
+  padding: 16px 0;
+  border-top: 1px solid var(--border2);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--fg3);
+  font-family: var(--font-mono);
+}
+.sister-label {
+  letter-spacing: 0.08em; flex-shrink: 0;
+  color: var(--fg3);
+}
+.sister-links {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+}
+.sister-links a {
+  color: var(--fg2); text-decoration: none; letter-spacing: 0.04em;
+  transition: color var(--tr);
+}
+.sister-links a:hover { color: var(--neon); }
+.sister-dot {
+  color: var(--border); font-size: 14px; line-height: 1;
+}
 
 /* ---- FOOTER ---- */
 .site-footer { border-top: 1px solid var(--border); padding: 28px 0 40px; }

@@ -1,5 +1,5 @@
 /* ============================================================
-   IS IT A BANK HOLIDAY TODAY? — DATA (India)
+   IS IT A BANK HOLIDAY TODAY? - DATA (India)
    ============================================================ */
 
 // ---- COPY BANKS ----
@@ -22,7 +22,7 @@ const GUILT_MSGS = [
   { main: "GO WORK,\nYOU LAZY ASS.", sub: "The bank is open. Your login credentials still work. Close this tab." },
   { main: "NICE TRY.\nNOT TODAY.", sub: "No holiday. Your Jira board is watching. Your manager is double-watching." },
   { main: "SIR THIS\nIS A WORK DAY.", sub: "Banks are open. Your excuses are not. Get back to those spreadsheets." },
-  { main: "CLOSE THIS\nTAB NOW.", sub: "We saw you. HR didn't — yet. Move quickly and open your work laptop." },
+  { main: "CLOSE THIS\nTAB NOW.", sub: "We saw you. HR didn't, yet. Move quickly and open your work laptop." },
   { main: "NOT A\nHOLIDAY.", sub: "It is a regular, fully functional, entirely dreadful working day. Sorry." },
   { main: "THE BANK\nIS OPEN.\nSO IS YOURS.", sub: "No official excuse today. The economy requires your presence. Reluctantly." },
   { main: "YOUR LEAVE\nWON'T APPLY.", sub: "Log in. Attend standup. Pretend you've been working since 9am." },
@@ -37,12 +37,12 @@ const GAME_OVER_QUIPS = {
   ],
   snake: [
     "The snake represents scope creep. It always wins.",
-    "Growth mindset — until you ran into yourself.",
-    "You ate 3 laptops and a meeting invite. Respectable.",
+    "Growth mindset, until you ran into yourself.",
+    "You ate three laptops and a meeting invite. Respectable.",
     "Classic case of rapid scaling failure.",
   ],
   typing: [
-    "That WPM > your quarterly report turnaround.",
+    "That WPM beats your quarterly report turnaround.",
     "Type fast, reply to emails: never.",
     "Fastest fingers in the bank holiday game.",
     "Your keyboard thanks you for the holiday workout.",
@@ -153,131 +153,152 @@ const QUICK_CITIES = [
 
 // ---- NATIONAL HOLIDAYS ----
 const NATIONAL_HOLIDAYS = [
-  { m:1, d:26, name:"Republic Day", note:"India's constitution came into force in 1950. Banks closed nationwide. Parades happen. Patriotism is mandatory." },
-  { m:8, d:15, name:"Independence Day", note:"Independence from British rule, 1947. Flag hoisting, speeches, closed banks, and a lot of feelings." },
-  { m:10, d:2, name:"Gandhi Jayanti", note:"Mahatma Gandhi's birthday. National holiday. Non-violence. Also very closed banks." },
-  { m:10, d:3, name:"Gandhi Jayanti (observed)", note:"Gandhi Jayanti observed/extended holiday in some states." },
+  { m:1,  d:26, name:"Republic Day",                   note:"India's constitution came into force in 1950. Banks closed nationwide. Parades happen. Patriotism is mandatory." },
+  { m:8,  d:15, name:"Independence Day",                note:"Independence from British rule, 1947. Flag hoisting, speeches, closed banks, and a lot of feelings." },
+  { m:10, d:2,  name:"Gandhi Jayanti",                  note:"Mahatma Gandhi's birthday. National holiday. Non-violence. Also very closed banks." },
+  { m:10, d:3,  name:"Gandhi Jayanti (observed)",       note:"Gandhi Jayanti observed or extended holiday in some states." },
 ];
 
 // ---- STATE-SPECIFIC HOLIDAYS ----
 const STATE_HOLIDAYS = {
   MH: [
-    { m:3, d:17, name:"Chhatrapati Shivaji Maharaj Jayanti", note:"The great Maratha warrior king's birthday. Maharashtra banks closed." },
-    { m:4, d:14, name:"Dr. B.R. Ambedkar Jayanti", note:"Babasaheb's birthday. Observed across Maharashtra. Banks shut." },
-    { m:4, d:22, name:"Good Friday", note:"Maharashtra observes Good Friday as a bank holiday." },
-    { m:5, d:1, name:"Maharashtra Day", note:"Maharashtra Formation Day, 1960. Banks closed. Full state holiday." },
-    { m:10, d:24, name:"Dussehra", note:"Dussehra holiday for Maharashtra. Banks closed." },
-    { m:11, d:1, name:"Diwali (Laxmi Pujan)", note:"Banks closed for Diwali across Maharashtra." },
-    { m:11, d:2, name:"Diwali (Padwa)", note:"Diwali Padwa — New Year in Maharashtra. Banks closed." },
-    { m:11, d:3, name:"Diwali (Bhaubeej)", note:"Banks closed for Bhaubeej." },
+    { m:3,  d:17, name:"Chhatrapati Shivaji Maharaj Jayanti", note:"The great Maratha warrior king's birthday. Maharashtra banks closed." },
+    { m:4,  d:14, name:"Dr. B.R. Ambedkar Jayanti",           note:"Babasaheb's birthday. Observed across Maharashtra. Banks shut." },
+    { m:4,  d:22, name:"Good Friday",                          note:"Maharashtra observes Good Friday as a bank holiday." },
+    { m:5,  d:1,  name:"Maharashtra Day",                      note:"Maharashtra Formation Day, 1960. Banks closed. Full state holiday." },
+    { m:10, d:24, name:"Dussehra",                             note:"Dussehra holiday for Maharashtra. Banks closed." },
+    { m:11, d:1,  name:"Diwali (Laxmi Pujan)",                 note:"Banks closed for Diwali across Maharashtra." },
+    { m:11, d:2,  name:"Diwali (Padwa)",                       note:"Diwali Padwa - New Year in Maharashtra. Banks closed." },
+    { m:11, d:3,  name:"Diwali (Bhaubeej)",                    note:"Banks closed for Bhaubeej." },
   ],
   DL: [
-    { m:4, d:14, name:"Dr. B.R. Ambedkar Jayanti", note:"National observance. Delhi banks closed." },
-    { m:10, d:24, name:"Dussehra", note:"Delhi banks observe Dussehra." },
-    { m:10, d:31, name:"Halloween / Indira Gandhi's Death Anniversary", note:"October 31 is a Delhi state holiday." },
+    { m:4,  d:14, name:"Dr. B.R. Ambedkar Jayanti",            note:"National observance. Delhi banks closed." },
+    { m:10, d:24, name:"Dussehra",                              note:"Delhi banks observe Dussehra." },
+    { m:10, d:31, name:"Indira Gandhi's Death Anniversary",     note:"October 31 is a Delhi state holiday." },
   ],
   KA: [
-    { m:4, d:14, name:"Dr. B.R. Ambedkar Jayanti", note:"Karnataka banks closed for Ambedkar Jayanti." },
-    { m:11, d:1, name:"Kannada Rajyotsava", note:"Karnataka Formation Day. The proudest day in Karnataka. Banks closed, flags everywhere." },
+    { m:4,  d:14, name:"Dr. B.R. Ambedkar Jayanti",            note:"Karnataka banks closed for Ambedkar Jayanti." },
+    { m:11, d:1,  name:"Kannada Rajyotsava",                    note:"Karnataka Formation Day. The proudest day in Karnataka. Banks closed, flags everywhere." },
   ],
   TN: [
-    { m:1, d:14, name:"Pongal", note:"Tamil harvest festival. Banks in Tamil Nadu closed." },
-    { m:1, d:15, name:"Pongal (Day 2 — Maatu Pongal)", note:"Banks in Tamil Nadu observe extended Pongal." },
-    { m:4, d:14, name:"Tamil New Year (Puthandu)", note:"Tamil New Year. Banks in Tamil Nadu closed." },
+    { m:1,  d:14, name:"Pongal",                               note:"Tamil harvest festival. Banks in Tamil Nadu closed." },
+    { m:1,  d:15, name:"Pongal (Day 2 - Maatu Pongal)",        note:"Banks in Tamil Nadu observe extended Pongal." },
+    { m:4,  d:14, name:"Tamil New Year (Puthandu)",             note:"Tamil New Year. Banks in Tamil Nadu closed." },
   ],
   TG: [
-    { m:6, d:2, name:"Telangana Formation Day", note:"Telangana's statehood day since 2014. Banks in Hyderabad closed." },
-    { m:4, d:14, name:"Dr. B.R. Ambedkar Jayanti", note:"Banks closed across Telangana." },
+    { m:6,  d:2,  name:"Telangana Formation Day",              note:"Telangana's statehood day since 2014. Banks in Hyderabad closed." },
+    { m:4,  d:14, name:"Dr. B.R. Ambedkar Jayanti",            note:"Banks closed across Telangana." },
   ],
   AP: [
-    { m:4, d:14, name:"Dr. B.R. Ambedkar Jayanti", note:"Banks closed in Andhra Pradesh." },
-    { m:3, d:31, name:"Ugadi", note:"Telugu New Year. Banks in Andhra Pradesh closed." },
+    { m:4,  d:14, name:"Dr. B.R. Ambedkar Jayanti",            note:"Banks closed in Andhra Pradesh." },
+    { m:3,  d:31, name:"Ugadi",                                 note:"Telugu New Year. Banks in Andhra Pradesh closed." },
   ],
   WB: [
-    { m:10, d:4, name:"Dussehra (Vijaya Dashami)", note:"Durga Puja finale. Banks in West Bengal closed." },
-    { m:10, d:5, name:"Durga Puja", note:"Mahasaptami. Banks in West Bengal observe extended Durga Puja." },
-    { m:5, d:9, name:"Rabindra Jayanti", note:"Rabindranath Tagore's birthday. West Bengal state holiday." },
+    { m:10, d:4,  name:"Dussehra (Vijaya Dashami)",            note:"Durga Puja finale. Banks in West Bengal closed." },
+    { m:10, d:5,  name:"Durga Puja",                           note:"Mahasaptami. Banks in West Bengal observe extended Durga Puja." },
+    { m:5,  d:9,  name:"Rabindra Jayanti",                     note:"Rabindranath Tagore's birthday. West Bengal state holiday." },
   ],
   GJ: [
-    { m:1, d:14, name:"Uttarayan (Makar Sankranti)", note:"Kite festival day in Gujarat. Some banks observe this locally." },
-    { m:5, d:1, name:"Gujarat Day", note:"Gujarat Formation Day. Banks closed across the state." },
+    { m:1,  d:14, name:"Uttarayan (Makar Sankranti)",          note:"Kite festival day in Gujarat. Some banks observe this locally." },
+    { m:5,  d:1,  name:"Gujarat Day",                          note:"Gujarat Formation Day. Banks closed across the state." },
   ],
   KL: [
-    { m:8, d:23, name:"Onam (Thiruvonam)", note:"Kerala's biggest festival. Banks closed across the state." },
-    { m:1, d:14, name:"Makar Vilakku / Pongal", note:"Regional holiday in Kerala." },
+    { m:8,  d:23, name:"Onam (Thiruvonam)",                    note:"Kerala's biggest festival. Banks closed across the state." },
+    { m:1,  d:14, name:"Makar Vilakku / Pongal",               note:"Regional holiday in Kerala." },
   ],
   PB: [
-    { m:11, d:19, name:"Guru Nanak Jayanti", note:"Birthday of Guru Nanak Dev Ji. Banks in Punjab closed." },
-    { m:4, d:13, name:"Baisakhi", note:"Punjabi New Year and harvest festival. Banks in Punjab closed." },
+    { m:11, d:19, name:"Guru Nanak Jayanti",                   note:"Birthday of Guru Nanak Dev Ji. Banks in Punjab closed." },
+    { m:4,  d:13, name:"Baisakhi",                             note:"Punjabi New Year and harvest festival. Banks in Punjab closed." },
   ],
-  // 2nd & 4th Saturday rule (universal)
   _WEEKENDS: true,
 };
 
 // ---- STATE LABELS ----
 const STATE_LABELS = {
-  MH: "Maharashtra", DL: "Delhi", KA: "Karnataka", TN: "Tamil Nadu",
-  TG: "Telangana", AP: "Andhra Pradesh", WB: "West Bengal", GJ: "Gujarat",
-  KL: "Kerala", PB: "Punjab", HR: "Haryana", UP: "Uttar Pradesh",
-  RJ: "Rajasthan", MP: "Madhya Pradesh", BR: "Bihar", JH: "Jharkhand",
-  OD: "Odisha", AS: "Assam", HP: "Himachal Pradesh", JK: "J&K",
-  UK: "Uttarakhand", GA: "Goa", CG: "Chhattisgarh", CH: "Chandigarh",
+  MH: "Maharashtra",     DL: "Delhi",           KA: "Karnataka",
+  TN: "Tamil Nadu",      TG: "Telangana",       AP: "Andhra Pradesh",
+  WB: "West Bengal",     GJ: "Gujarat",         KL: "Kerala",
+  PB: "Punjab",          HR: "Haryana",         UP: "Uttar Pradesh",
+  RJ: "Rajasthan",       MP: "Madhya Pradesh",  BR: "Bihar",
+  JH: "Jharkhand",       OD: "Odisha",          AS: "Assam",
+  HP: "Himachal Pradesh",JK: "J&K",             UK: "Uttarakhand",
+  GA: "Goa",             CG: "Chhattisgarh",    CH: "Chandigarh",
 };
 
 // ---- MAIN HOLIDAY CHECK FUNCTION ----
 function checkHoliday(stateCode, date) {
-  const m = date.getMonth() + 1;
-  const d = date.getDate();
-  const dow = date.getDay(); // 0=Sun
+  var m   = date.getMonth() + 1;
+  var d   = date.getDate();
+  var dow = date.getDay(); // 0 = Sunday
 
-  // Sunday = always holiday
-  if (dow === 0) return { holiday: true, name: "Sunday", note: "Banks are always closed on Sundays in India.", category: "weekend" };
+  // Sunday
+  if (dow === 0) {
+    return { holiday: true, name: "Sunday", note: "Banks are always closed on Sundays in India.", category: "weekend" };
+  }
 
   // 2nd and 4th Saturday
   if (dow === 6) {
-    const weekNum = Math.ceil(d / 7);
+    var weekNum = Math.ceil(d / 7);
     if (weekNum === 2 || weekNum === 4) {
-      return { holiday: true, name: `${weekNum === 2 ? '2nd' : '4th'} Saturday`, note: "RBI policy: Indian banks are closed on the 2nd and 4th Saturdays of every month.", category: "weekend" };
+      return {
+        holiday: true,
+        name: (weekNum === 2 ? '2nd' : '4th') + ' Saturday',
+        note: "RBI policy: Indian banks are closed on the 2nd and 4th Saturdays of every month.",
+        category: "weekend"
+      };
     }
   }
 
-  // Check admin overrides first
-  const overrides = getAdminOverrides();
-  const dateStr = formatDateISO(date);
-  for (const o of overrides) {
+  // Admin overrides
+  var overrides = getAdminOverrides();
+  var dateStr = formatDateISO(date);
+  for (var i = 0; i < overrides.length; i++) {
+    var o = overrides[i];
     if (o.date === dateStr && (o.state === 'ALL' || o.state === stateCode || !o.state)) {
       return { holiday: true, name: o.name, note: o.note || 'Admin-confirmed holiday.', category: 'override' };
     }
   }
 
-  // Check crowdsourced reports
-  const reports = getCrowdReports();
-  const reportKey = `${stateCode}-${dateStr}`;
+  // Crowdsourced reports
+  var reports = getCrowdReports();
+  var reportKey = stateCode + '-' + dateStr;
   if (reports[reportKey] && reports[reportKey].dry >= 3) {
-    return { holiday: true, name: 'Crowdsourced Holiday', note: `${reports[reportKey].dry} users confirmed this as a bank holiday today.`, category: 'crowd' };
+    return {
+      holiday: true,
+      name: 'Crowdsourced Holiday',
+      note: reports[reportKey].dry + ' users confirmed this as a bank holiday today.',
+      category: 'crowd'
+    };
   }
 
   // National holidays
-  for (const h of NATIONAL_HOLIDAYS) {
-    if (h.m === m && h.d === d) return { holiday: true, name: h.name, note: h.note, category: 'national' };
+  for (var j = 0; j < NATIONAL_HOLIDAYS.length; j++) {
+    var h = NATIONAL_HOLIDAYS[j];
+    if (h.m === m && h.d === d) {
+      return { holiday: true, name: h.name, note: h.note, category: 'national' };
+    }
   }
 
   // State holidays
-  const stateList = STATE_HOLIDAYS[stateCode] || [];
-  for (const h of stateList) {
-    if (h.m === m && h.d === d) return { holiday: true, name: h.name, note: h.note, category: 'state' };
+  var stateList = STATE_HOLIDAYS[stateCode] || [];
+  for (var k = 0; k < stateList.length; k++) {
+    var sh = stateList[k];
+    if (sh.m === m && sh.d === d) {
+      return { holiday: true, name: sh.name, note: sh.note, category: 'state' };
+    }
   }
 
   return { holiday: false };
 }
 
 // ---- UPCOMING HOLIDAYS ----
-function getUpcomingHolidays(stateCode, fromDate, count = 8) {
-  const results = [];
-  const check = new Date(fromDate);
-  for (let i = 1; i <= 180 && results.length < count; i++) {
+function getUpcomingHolidays(stateCode, fromDate, count) {
+  count = count || 8;
+  var results = [];
+  var check = new Date(fromDate);
+  for (var i = 1; i <= 180 && results.length < count; i++) {
     check.setDate(check.getDate() + 1);
-    const r = checkHoliday(stateCode, check);
+    var r = checkHoliday(stateCode, check);
     if (r.holiday && r.category !== 'weekend') {
       results.push({ date: new Date(check), name: r.name, daysFrom: i });
     }
@@ -287,40 +308,48 @@ function getUpcomingHolidays(stateCode, fromDate, count = 8) {
 
 // ---- CROWD REPORTING ----
 function getCrowdReports() {
-  try { return JSON.parse(localStorage.getItem('bhCrowdReports') || '{}'); } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem('bhCrowdReports') || '{}'); }
+  catch (e) { return {}; }
 }
+
 function submitCrowdReport(stateCode, dateStr, isHoliday) {
-  const key = `${stateCode}-${dateStr}`;
-  const userKey = `bhVoted-${key}`;
+  var key     = stateCode + '-' + dateStr;
+  var userKey = 'bhVoted-' + key;
   if (localStorage.getItem(userKey)) return false;
-  const reports = getCrowdReports();
+  var reports = getCrowdReports();
   if (!reports[key]) reports[key] = { dry: 0, notDry: 0 };
-  if (isHoliday) reports[key].dry++; else reports[key].notDry++;
+  if (isHoliday) reports[key].dry++;
+  else reports[key].notDry++;
   localStorage.setItem('bhCrowdReports', JSON.stringify(reports));
   localStorage.setItem(userKey, '1');
   return true;
 }
+
 function getCrowdCount(stateCode, dateStr) {
-  const key = `${stateCode}-${dateStr}`;
-  const r = getCrowdReports()[key];
+  var key = stateCode + '-' + dateStr;
+  var r = getCrowdReports()[key];
   return r ? r : { dry: 0, notDry: 0 };
 }
 
 // ---- ADMIN OVERRIDES ----
 const ADMIN_PASSWORD = 'holiday2026';
+
 function getAdminOverrides() {
-  try { return JSON.parse(localStorage.getItem('bhAdminOverrides') || '[]'); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem('bhAdminOverrides') || '[]'); }
+  catch (e) { return []; }
 }
+
 function addAdminOverride(pwd, date, state, name, note) {
   if (pwd !== ADMIN_PASSWORD) return { ok: false, msg: 'Wrong password.' };
   if (!date || !name) return { ok: false, msg: 'Date and holiday name are required.' };
-  const overrides = getAdminOverrides();
-  overrides.push({ date, state: state || 'ALL', name, note: note || '' });
+  var overrides = getAdminOverrides();
+  overrides.push({ date: date, state: state || 'ALL', name: name, note: note || '' });
   localStorage.setItem('bhAdminOverrides', JSON.stringify(overrides));
   return { ok: true };
 }
+
 function deleteAdminOverride(idx) {
-  const overrides = getAdminOverrides();
+  var overrides = getAdminOverrides();
   overrides.splice(idx, 1);
   localStorage.setItem('bhAdminOverrides', JSON.stringify(overrides));
 }
@@ -329,7 +358,13 @@ function deleteAdminOverride(idx) {
 function formatDateISO(date) {
   return date.toISOString().slice(0, 10);
 }
+
 function formatDateHuman(date) {
-  return date.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  return date.toLocaleDateString('en-IN', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
 }
-function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function randomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
